@@ -28,26 +28,7 @@ Version 4 introduces a single tool-using AI agent that can decide which tool to 
 
 ### 🏗️ Architecture
 
-React Frontend
-      |
-      | POST /chat
-      v
-FastAPI Backend
-      |
-      v
-AI Agent Loop
-      |
-      +---- search_knowledge() ----> ChromaDB ----> Institute PDFs
-      |
-      +---- get_course_info()
-      |
-      +---- calculate_fee()
-      |
-      v
-Groq LLM
-      |
-      v
-Final Answer
+<img src="frontend/src/assets/Architecture.png" alt="Architecture image" width="600">---
 
 ---
 
@@ -85,33 +66,8 @@ RAG
 
 ### 📁 Project Structure
 
-AI-Institute-Assistant-Version-4/
-│
-├── README.md
-│
-├── backend/
-│   ├── main.py
-│   ├── rag.py
-│   ├── tools.py
-│   ├── upload_docs.py
-│   ├── requirements.txt
-│   ├── .env.example
-│   │
-│   ├── data/
-│   │   └── README.txt
-│   │
-│   └── vector_db/
-│       └── (created automatically)
-│
-└── frontend/
-    ├── package.json
-    ├── index.html
-    │
-    └── src/
-        ├── App.jsx
-        ├── App.css
-        ├── index.css
-        └── main.jsx
+<img src="frontend/src/assets/structure.png" alt="structure Screenshot" width="600">---
+
 
 ---
 
