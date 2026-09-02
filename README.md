@@ -189,33 +189,33 @@ The "vector_db/" directory is created automatically.
 🚀 4. Start FastAPI
 
 From the "backend" directory:
-
+```bash
 uvicorn main:app --reload
-
+```
 The API will run at:
-
+```bash
 http://localhost:8000
-
+```
 ---
 
 💻 5. Start the Frontend
 
 Open another terminal:
-
+```bash
 cd frontend
-
+```
 Install dependencies:
-
+```bash
 npm install
-
+```
 Start the development server:
-
+```bash
 npm run dev
-
+```
 Open the URL shown by Vite, normally:
-
+```bash
 http://localhost:5173
-
+```
 ---
 
 ### 💬 Example Questions
