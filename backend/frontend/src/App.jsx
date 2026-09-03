@@ -13,13 +13,6 @@ function App() {
 
     const userMessage = input;
 
-    // Snapshot current history BEFORE adding the new user message,
-    // since this is what gets sent to the backend as prior context.
-    const historyToSend = messages.map(({ role, content }) => ({
-      role,
-      content,
-    }));
-
     setMessages((prev) => [
       ...prev,
       {
@@ -41,7 +34,6 @@ function App() {
           },
           body: JSON.stringify({
             message: userMessage,
-            history: historyToSend,
           }),
         }
       );

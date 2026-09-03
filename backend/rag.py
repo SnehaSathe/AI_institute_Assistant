@@ -13,16 +13,26 @@ db = Chroma(
 )
 
 
-def retrieve_context(question):
+def retrieve_context(question, score_threshold=1.5):
 
-    docs = db.similarity_search(
+    results = db.similarity_search_with_score(
         question,
         k=3
     )
 
+    # Chroma returns (document, distance) pairs — lower distance
+    # means more similar. Keep only chunks below the threshold.
+    relevant_docs = [
+        doc for doc, score in results
+        if score <= score_threshold
+    ]
+
+    if not relevant_docs:
+        return "No relevant information found in institute documents."
+
     context = "\n\n".join(
         doc.page_content
-        for doc in docs
+        for doc in relevant_docs
     )
 
     return context

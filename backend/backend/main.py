@@ -1,11 +1,11 @@
 import os
-import json
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import List, Optional
-from groq import Groq, APIError, APIConnectionError, RateLimitError
+from groq import Groq
+from rag import retrieve_context
+import json
 
 from tools import (
     search_knowledge,
@@ -15,7 +15,7 @@ from tools import (
 
 load_dotenv()
 
-client = Groq(
+client=Groq(
     api_key=os.getenv("GROQ_API_KEY")
 )
 
@@ -29,35 +29,25 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-class Message(BaseModel):
-    role: str
-    content: str
-
-
 class ChatRequest(BaseModel):
-    message: str
-    history: Optional[List[Message]] = []
-
+    message:str
 
 @app.get("/")
 def home():
-    return {
-        "message": "AI Institute Assistant API is running"
+    return{
+        "message":"AI  Institute Assistant API is running"
     }
-
 
 @app.post("/chat")
 def chat(request: ChatRequest):
-    try:
-        history_dicts = [m.dict() for m in request.history]
-        answer = run_agent(request.message, history_dicts)
-    except Exception as e:
-        print(f"Unexpected error: {e}")
-        raise HTTPException(status_code=500, detail="Internal server error.")
 
-    return {"reply": answer}
+    answer = run_agent(
+        request.message
+    )
 
+    return {
+        "reply": answer
+    }
 
 tools = [
     {
@@ -116,7 +106,6 @@ tools = [
     }
 ]
 
-
 def execute_tool(function_name, arguments):
 
     if function_name == "search_knowledge":
@@ -143,7 +132,7 @@ def execute_tool(function_name, arguments):
     }
 
 
-def run_agent(user_message, history=None):
+def run_agent(user_message):
 
     messages = [
         {
@@ -167,36 +156,22 @@ Rules:
 6. If information cannot be found, clearly say so.
 7. Give a concise and friendly final answer.
 """
-        }
-    ]
-
-    if history:
-        messages.extend(history)
-
-    messages.append(
+        },
         {
             "role": "user",
             "content": user_message
         }
-    )
+    ]
 
     # Agent loop
     for step in range(5):
 
-        try:
-            response = client.chat.completions.create(
-                model="openai/gpt-oss-20b",
-                messages=messages,
-                tools=tools,
-                tool_choice="auto"
-            )
-        except RateLimitError:
-            return "I'm getting too many requests right now — please try again in a moment."
-        except APIConnectionError:
-            return "I couldn't connect to the AI service. Please check your connection and try again."
-        except APIError as e:
-            print(f"Groq API error: {e}")
-            return "Something went wrong while processing your request. Please try again."
+        response = client.chat.completions.create(
+            model="openai/gpt-oss-20b",
+            messages=messages,
+            tools=tools,
+            tool_choice="auto"
+        )
 
         assistant_message = response.choices[0].message
 
@@ -217,29 +192,22 @@ Rules:
                 tool_call.function.name
             )
 
-            try:
-                arguments = json.loads(
-                    tool_call.function.arguments
-                )
-            except json.JSONDecodeError:
-                result = {"error": "Model returned malformed tool arguments."}
-            else:
-                print(
-                    f"Agent selected tool: {function_name}"
-                )
+            arguments = json.loads(
+                tool_call.function.arguments
+            )
 
-                print(
-                    f"Arguments: {arguments}"
-                )
+            print(
+                f"Agent selected tool: {function_name}"
+            )
 
-                try:
-                    result = execute_tool(
-                        function_name,
-                        arguments
-                    )
-                except Exception as e:
-                    print(f"Tool execution error ({function_name}): {e}")
-                    result = {"error": f"Tool '{function_name}' failed to execute."}
+            print(
+                f"Arguments: {arguments}"
+            )
+
+            result = execute_tool(
+                function_name,
+                arguments
+            )
 
             messages.append(
                 {
