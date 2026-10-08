@@ -1,0 +1,22 @@
+# Python virtual environment
+venv/
+.venv/
+backend/venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Environment variables
+.env
+.env.*
+
+# IDE
+.vscode/
+.idea/
+
+# Vector DB (rebuild with python upload_docs.py)
+backend/vector_db/
+
+# Leftovers
+*.zip
